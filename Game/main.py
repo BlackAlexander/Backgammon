@@ -19,11 +19,29 @@ def play_game():
     screen = pygame.display.set_mode(size)
     background = pygame.image.load("../Images/Board.png")
 
+    # buttons
+    button_roll = pygame.image.load("../Images/Button-Roll.png")
+    # button_roll = pygame.transform.scale(button_roll, (100, 100))
+    button_undo = pygame.image.load("../Images/Button-Undo.png")
+    button_done = pygame.image.load("../Images/Button-Done.png")
+
     # game data
     table = default_table()
     playing = True
     black_pips = 167
     white_pips = 167
+    stage = ['roll', 'piece moved', 'all pieces']
+    turn = ['white', 'black']
+    current_stage = 2
+    dices1 = get_dice()[0]
+    dices2 = get_dice()[1]
+    while dices1 == dices2:
+        dices1 = get_dice()[0]
+        dices2 = get_dice()[1]
+    if dices1 > dices2:
+        current_turn = 0
+    else:
+        current_turn = 1
 
     # text
     pygame.font.init()
@@ -32,7 +50,7 @@ def play_game():
     while playing:
 
         mouse = pygame.mouse.get_pos()
-        # click = pygame.mouse.get_pressed()
+        click = pygame.mouse.get_pressed(3)
 
         # text
         blacksurface = pipfont.render(str(black_pips), True, (0, 0, 0))
@@ -43,11 +61,24 @@ def play_game():
         screen.blit(blacksurface, (362, -7))
         screen.blit(whitesurface, (362, 752))
         put_pieces(screen, table)
-        # put_dice(screen, 2, 3)
+        # put_dice(screen, get_dice()[0], get_dice()[1])
+
+        if stage[current_stage] == 'roll':
+            screen.blit(button_roll, (541, 353))
+        if stage[current_stage] == 'piece moved':
+            screen.blit(button_undo, (541, 353))
+        if stage[current_stage] == 'all pieces':
+            screen.blit(button_undo, (471, 353))
+            screen.blit(button_done, (611, 353))
+
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 playing = False
+
+            if event.type == pygame.MOUSEBUTTONUP:
+                print(mouse[0], mouse[1])
+                print(click)
 
         pygame.display.update()
 
@@ -81,8 +112,22 @@ def put_pieces(screen, table):
 
 
 def get_dice():
-    value1 = random.randint(1, 6)
-    value2 = random.randint(1, 6)
+    f = open("../Dice.txt")
+    value1 = 1
+    value2 = 1
+    line = str(f.readline())
+    try:
+        x = int(line[0])
+        if 1 <= x <= 6:
+            value1 = x
+        x = int(line[2])
+        if 1 <= x <= 6:
+            value2 = x
+    except (Exception,):
+        value1 = random.randint(1, 6)
+        value2 = random.randint(1, 6)
+
+    f.close()
     return [value1, value2]
 
 
@@ -98,9 +143,9 @@ def put_dice(screen, value1, value2):
     dices = [dice_s, dice_1, dice_2, dice_3, dice_4, dice_5, dice_6]
     first_dice = dices[value1]
     second_dice = dices[value2]
-    screen.blit(dice_s, (158, 373))
+    screen.blit(dice_s, (153, 368))
     screen.blit(first_dice, (148, 363))
-    screen.blit(dice_s, (237, 403))
+    screen.blit(dice_s, (232, 398))
     screen.blit(second_dice, (227, 393))
 
 
