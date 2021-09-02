@@ -12,7 +12,8 @@ def initialize():
 def play_game():
     # sound
     sound_piece = pygame.mixer.Sound("../Sounds/Piece-Move.wav")
-    sound_piece.set_volume(1)
+    sound_dice = pygame.mixer.Sound("../Sounds/Dice-Sound.wav")
+    sound_66 = pygame.mixer.Sound("../Sounds/Sunet-66.wav")
 
     # screen
     size = (800, 800)
@@ -30,9 +31,9 @@ def play_game():
     playing = True
     black_pips = 167
     white_pips = 167
-    stage = ['roll', 'piece moved', 'all pieces']
+    stage = ['roll', 'piece moved', 'all pieces', 'start roll', 'nothing']
     turn = ['white', 'black']
-    current_stage = 2
+    current_stage = 3
     dices1 = get_dice()[0]
     dices2 = get_dice()[1]
     while dices1 == dices2:
@@ -42,13 +43,14 @@ def play_game():
         current_turn = 0
     else:
         current_turn = 1
+    dices_thrown = 0
 
     # text
     pygame.font.init()
     pipfont = pygame.font.SysFont('Times New Roman', 50)
 
     while playing:
-
+        # pygame.mouse.set_cursor(*pygame.cursors.diamond)
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed(3)
 
@@ -61,9 +63,10 @@ def play_game():
         screen.blit(blacksurface, (362, -7))
         screen.blit(whitesurface, (362, 752))
         put_pieces(screen, table)
-        # put_dice(screen, get_dice()[0], get_dice()[1])
+        if dices_thrown:
+            put_dice(screen, dices1, dices2)
 
-        if stage[current_stage] == 'roll':
+        if stage[current_stage] == 'roll' or stage[current_stage] == 'start roll':
             screen.blit(button_roll, (541, 353))
         if stage[current_stage] == 'piece moved':
             screen.blit(button_undo, (541, 353))
@@ -71,14 +74,25 @@ def play_game():
             screen.blit(button_undo, (471, 353))
             screen.blit(button_done, (611, 353))
 
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 playing = False
 
             if event.type == pygame.MOUSEBUTTONUP:
-                print(mouse[0], mouse[1])
-                print(click)
+                # print(mouse[0], mouse[1])
+                # print(click)
+                pos_x = mouse[0]
+                pos_y = mouse[1]
+                if current_stage == 0 or current_stage == 3:
+                    if 368 <= pos_y <= 438 and 541 <= pos_x <= 640:
+                        [dices1, dices2] = get_dice()
+                        dices_thrown = True
+                        pygame.mixer.Sound.play(sound_dice)
+                        clear_file()
+                        if dices1 == 6 and dices2 == 6:
+                            pygame.mixer.Sound.play(sound_66)
+
+        # screen.blit(pygame.transform.rotate(screen, 180), (0, 0))
 
         pygame.display.update()
 
@@ -159,6 +173,12 @@ def get_piece_position(row, height):
     else:
         piece_y = 703 - height * 52
     return (piece_x, piece_y)
+
+
+def clear_file():
+    f = open("../Dice.txt", "w")
+    f.write("x x")
+    f.close()
 
 
 if __name__ == '__main__':
