@@ -146,10 +146,10 @@ def put_dice(screen, value1, value2):
     dices = [dice_s, dice_1, dice_2, dice_3, dice_4, dice_5, dice_6]
     first_dice = dices[value1]
     second_dice = dices[value2]
-    screen.blit(dice_s, (153, 368))
-    screen.blit(first_dice, (148, 363))
-    screen.blit(dice_s, (232, 398))
-    screen.blit(second_dice, (227, 393))
+    screen.blit(dice_s, (153 + value1, 368 + value2))
+    screen.blit(first_dice, (148 + value1, 363 + value2))
+    screen.blit(dice_s, (232 + value2, 398 + value1))
+    screen.blit(second_dice, (227 + value2, 393 + value1))
 
 
 def get_piece_position(row, height):
