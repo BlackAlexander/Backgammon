@@ -13,7 +13,6 @@ def play_game():
     # sound
     sound_piece = pygame.mixer.Sound("../Sounds/Piece-Move.wav")
     sound_dice = pygame.mixer.Sound("../Sounds/Dice-Sound.wav")
-    sound_66 = pygame.mixer.Sound("../Sounds/Sunet-66.wav")
 
     # screen
     size = (800, 800)
@@ -34,17 +33,8 @@ def play_game():
     stage = ['roll', 'piece moved', 'all pieces', 'start roll', 'nothing']
     turn = ['white', 'black']
     current_stage = 3
-    dices1 = get_dice()[0]
-    dices2 = get_dice()[1]
-    while dices1 == dices2:
-        dices1 = get_dice()[0]
-        dices2 = get_dice()[1]
-    if dices1 > dices2:
-        current_turn = 0
-    else:
-        current_turn = 1
     dices_thrown = 0
-
+    dices1 = dices2 = 1
     # text
     pygame.font.init()
     pipfont = pygame.font.SysFont('Times New Roman', 50)
@@ -89,8 +79,7 @@ def play_game():
                         dices_thrown = True
                         pygame.mixer.Sound.play(sound_dice)
                         clear_file()
-                        if dices1 == 6 and dices2 == 6:
-                            pygame.mixer.Sound.play(sound_66)
+                        play_sound(dices1, dices2)
 
         # screen.blit(pygame.transform.rotate(screen, 180), (0, 0))
 
@@ -179,6 +168,30 @@ def clear_file():
     f = open("../Dice.txt", "w")
     f.write("x x")
     f.close()
+
+
+def play_sound(value1, value2):
+    if value1 < value2:
+        value2, value1 = value1, value2
+    sound_66 = pygame.mixer.Sound("../Sounds/Sunet-66.wav")
+    sound_66_2 = pygame.mixer.Sound("../Sounds/Sunet-66-2.wav")
+    sound_64 = pygame.mixer.Sound("../Sounds/Sunet-64.wav")
+    sound_44 = pygame.mixer.Sound("../Sounds/Sunet-44.wav")
+    sound_11 = pygame.mixer.Sound("../Sounds/Sunet-11.wav")
+    sound_12 = pygame.mixer.Sound("../Sounds/Sunet-12.wav")
+    if value1 == 6 and value2 == 6:
+        if random.randint(1, 2) == 1:
+            pygame.mixer.Sound.play(sound_66_2)
+        else:
+            pygame.mixer.Sound.play(sound_66)
+    if value1 == 6 and value2 == 4:
+        pygame.mixer.Sound.play(sound_64)
+    if value1 == 4 and value2 == 4:
+        pygame.mixer.Sound.play(sound_44)
+    if value1 == 1 and value2 == 1:
+        pygame.mixer.Sound.play(sound_11)
+    if value1 == 2 and value2 == 1:
+        pygame.mixer.Sound.play(sound_12)
 
 
 if __name__ == '__main__':
