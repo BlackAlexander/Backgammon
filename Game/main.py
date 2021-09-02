@@ -30,6 +30,7 @@ def play_game():
     pipfont = pygame.font.SysFont('Times New Roman', 50)
 
     while playing:
+
         mouse = pygame.mouse.get_pos()
         # click = pygame.mouse.get_pressed()
 
@@ -42,7 +43,11 @@ def play_game():
         screen.blit(blacksurface, (362, -7))
         screen.blit(whitesurface, (362, 752))
         put_pieces(screen, table)
-        put_dice(screen, 2, 3)
+        # put_dice(screen, 2, 3)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                playing = False
 
         pygame.display.update()
 
