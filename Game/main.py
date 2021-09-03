@@ -115,7 +115,8 @@ def default_table():
     to_return[16] = [b, b, b]
     to_return[18] = [b, b, b, b, b]
     to_return[23] = [w, w]
-    perform_move(to_return, 'black', 18, 6)
+    perform_move(to_return, 'white', 23, 11)
+    perform_move(to_return, 'white', 23, 11)
     return to_return
 
 
@@ -150,10 +151,15 @@ def perform_move(table, colour, row, value):
         colour = 'b'
     elif colour == 'white':
         colour = 'w'
+    if colour == 'b':
+        new_position = row + value
+    else:
+        new_position = row - value
     performable = True
-    new_position = row + value
-    if new_position > 23:
-        performable = False
+    if len(table[row]) == 0 or table[row][0] != colour:
+        print('Move not available!')
+        return
+    if new_position > 23 or new_position < 0:
         print('Move not available!')
         return
     if check_moves(table, colour)[new_position] is False:
