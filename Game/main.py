@@ -54,7 +54,7 @@ def play_game():
     # text
     pygame.font.init()
     pipfont = pygame.font.SysFont('Times New Roman', 50)
-    turnfont = pygame.font.SysFont('Times New Roman', 15)
+    turn_font = pygame.font.SysFont('Times New Roman', 15)
 
     while playing:
         # pygame.mouse.set_cursor(*pygame.cursors.diamond)
@@ -64,7 +64,7 @@ def play_game():
         # text
         blacksurface = pipfont.render(str(black_pips), True, (0, 0, 0))
         whitesurface = pipfont.render(str(white_pips), True, (0, 0, 0))
-        who_turns = turnfont.render(turn[current_turn], True, (0, 0, 0))
+        who_turns = turn_font.render(turn[current_turn], True, (0, 0, 0))
 
         # blit
         screen.blit(background, (0, 0))
@@ -100,7 +100,7 @@ def play_game():
                         dices_thrown = True
                         pygame.mixer.Sound.play(sound_dice)
                         clear_file()
-                        if dices1 < dices2:
+                        if dices1 < dices2 <= 6 and dices1 <= 6:
                             dices2, dices1 = dices1, dices2
                         if dices1 == dices2:
                             dice_capacity = 4
@@ -108,6 +108,10 @@ def play_game():
                             dice_capacity = 2
                         play_sound(dices1, dices2)
                         current_stage = 4
+                        if not check_available(table, dices1, turn[current_turn]):
+                            if not check_available(table, dices2, turn[current_turn]):
+                                current_stage = 2
+
                 if current_stage == 4 or current_stage == 1:
                     # Move pieces
                     click_on_piece = False
@@ -115,6 +119,8 @@ def play_game():
                         click_on_piece = True
                     if 40 <= pos_x <= 760 and 450 <= pos_y <= 760:
                         click_on_piece = True
+                    if 40 <= pos_x <= 380 and 356 <= pos_y <= 450:
+                        dices2, dices1 = dices1, dices2
                     if click_on_piece:
                         row = pos_x - 40
                         row = row // 56
@@ -244,6 +250,46 @@ def game_sample(table):
     discard_out_piece(to_return, 'black', 4)
 
 
+def check_available(table, dice, colour):
+    """
+    Checks if the value from dice can be used on the table
+    :return: True/ False
+    """
+    if dice > 6:
+        return False
+    if colour == 'black':
+        colour = 'b'
+    if colour == 'white':
+        colour = 'w'
+
+    # First checks for out pieces
+    if colour == 'w':
+        if table[25] > 0:
+            if check_moves(table, colour)[24 - dice]:
+                return True
+            else:
+                return False
+    if colour == 'b':
+        if table[24] > 0:
+            if check_moves(table, colour)[dice - 1]:
+                return True
+            else:
+                return False
+
+    # Check for the rest
+    available = False
+    if colour == 'b':
+        for i in range(0, 23 - dice):
+            if check_moves(table, colour)[i + dice]:
+                available = True
+    if colour == 'w':
+        for i in range(23, dice + 1, -1):
+            if check_moves(table, colour)[i - dice]:
+                available = True
+    print(available)
+    return available
+
+
 def check_moves(table, colour):
     """
     Checks the possible moves for the given colour (black/white)
@@ -290,7 +336,7 @@ def perform_move(table, colour, row, value):
         return False
     performable = True
     if row == -1:
-        new_position = value - 1
+        new_position = value
     else:
         if row != -1:
             if len(table[row]) == 0 or table[row][0] != colour:
@@ -431,8 +477,8 @@ def put_dice(screen, value1, value2):
     second_dice = dices[value2]
     screen.blit(dice_s, (153 + value1, 368 + value2))
     screen.blit(first_dice, (148 + value1, 363 + value2))
-    second_dice = pygame.transform.scale(second_dice, (45, 45))
-    dice_s = pygame.transform.scale(dice_s, (45, 45))
+    # second_dice = pygame.transform.scale(second_dice, (45, 45))
+    # dice_s = pygame.transform.scale(dice_s, (45, 45))
     screen.blit(dice_s, (232 + value2, 398 + value1))
     screen.blit(second_dice, (227 + value2, 393 + value1))
 
@@ -484,8 +530,8 @@ def play_sound(value1, value2):
     sound_65 = pygame.mixer.Sound("../Sounds/Sunet-65.wav")
     sound_64 = pygame.mixer.Sound("../Sounds/Sunet-64.wav")
     sound_44 = pygame.mixer.Sound("../Sounds/Sunet-44.wav")
-    sound_42 = pygame.mixer.Sound("../Sounds/Sunet-42.wav")
-    sound_41 = pygame.mixer.Sound("../Sounds/Sunet-41.wav")
+    # sound_42 = pygame.mixer.Sound("../Sounds/Sunet-42.wav")
+    # sound_41 = pygame.mixer.Sound("../Sounds/Sunet-41.wav")
     sound_11 = pygame.mixer.Sound("../Sounds/Sunet-11.wav")
     sound_12 = pygame.mixer.Sound("../Sounds/Sunet-12.wav")
     if value1 == 6 and value2 == 6:
@@ -502,10 +548,10 @@ def play_sound(value1, value2):
         pygame.mixer.Sound.play(sound_65)
     if value1 == 4 and value2 == 4:
         pygame.mixer.Sound.play(sound_44)
-    if value1 == 4 and value2 == 2:
-        pygame.mixer.Sound.play(sound_42)
-    if value1 == 4 and value2 == 1:
-        pygame.mixer.Sound.play(sound_41)
+    # if value1 == 4 and value2 == 2:
+    #     pygame.mixer.Sound.play(sound_42)
+    # if value1 == 4 and value2 == 1:
+    #     pygame.mixer.Sound.play(sound_41)
     if value1 == 1 and value2 == 1:
         pygame.mixer.Sound.play(sound_11)
     if value1 == 2 and value2 == 1:
