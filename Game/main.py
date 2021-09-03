@@ -4,12 +4,21 @@ import os
 
 
 def initialize():
+    """
+    Initializes PyGame and the window
+    :return:
+    """
     os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (150, 30)
     pygame.init()
     pygame.display.set_caption('Backgammon')
 
 
 def play_game():
+    """
+    Long-ass function to play the whole game.
+    :return:
+    """
+
     # sound
     sound_piece = pygame.mixer.Sound("../Sounds/Piece-Move.wav")
     sound_dice = pygame.mixer.Sound("../Sounds/Dice-Sound.wav")
@@ -73,6 +82,7 @@ def play_game():
                 # print(click)
                 pos_x = mouse[0]
                 pos_y = mouse[1]
+                # Roll
                 if current_stage == 0 or current_stage == 3:
                     if 368 <= pos_y <= 438 and 541 <= pos_x <= 640:
                         [dices1, dices2] = get_dice()
@@ -80,6 +90,7 @@ def play_game():
                         pygame.mixer.Sound.play(sound_dice)
                         clear_file()
                         play_sound(dices1, dices2)
+                        current_stage = 4
 
         # screen.blit(pygame.transform.rotate(screen, 180), (0, 0))
 
@@ -87,6 +98,10 @@ def play_game():
 
 
 def default_table():
+    """
+    Initializes the default table
+    :return: List
+    """
     to_return = []
     for i in range(0, 24):
         to_return.append([])
@@ -100,10 +115,66 @@ def default_table():
     to_return[16] = [b, b, b]
     to_return[18] = [b, b, b, b, b]
     to_return[23] = [w, w]
+    perform_move(to_return, 'black', 18, 6)
     return to_return
 
 
+def check_moves(table, colour):
+    """
+    Checks the possible moves for the given colour (black/white)
+    :return: List of booleans
+    """
+    to_ret = []
+    if colour == 'black':
+        colour = 'b'
+    elif colour == 'white':
+        colour = 'w'
+    for i in range(0, 24):
+        to_ret.append(False)
+    for i in range(0, 24):
+        if len(table[i]) == 0:
+            to_ret[i] = True
+        if len(table[i]) == 1 and table[i][0] != colour:
+            to_ret[i] = True
+        if len(table[i]) > 0 and table[i][0] == colour:
+            to_ret[i] = True
+    return to_ret
+
+
+def perform_move(table, colour, row, value):
+    """
+    Performs a valid move
+    :return:
+    """
+    if colour == 'black':
+        colour = 'b'
+    elif colour == 'white':
+        colour = 'w'
+    performable = True
+    new_position = row + value
+    if new_position > 23:
+        performable = False
+        print('Move not available!')
+        return
+    if check_moves(table, colour)[new_position] is False:
+        performable = False
+    if performable:
+        table[row].pop(-1)
+        if len(table[new_position]) == 0:
+            table[new_position] = [colour]
+        else:
+            if table[new_position][0] != colour:
+                table[new_position] = [colour]
+            else:
+                table[new_position].append(colour)
+    else:
+        print('Move not available!')
+
+
 def put_pieces(screen, table):
+    """
+    Blits the pieces to the screen
+    """
     white_piece = pygame.image.load("../Images/Piece-White.png")
     black_piece = pygame.image.load("../Images/Piece-Black.png")
     for i in range(0, 24):
@@ -115,6 +186,11 @@ def put_pieces(screen, table):
 
 
 def get_dice():
+    """
+    Checks if there is a value in the file. If there is not, generates a random one.
+    If there are 2 values in the file, then it takes the values.
+    :return:
+    """
     f = open("../Dice.txt")
     value1 = 1
     value2 = 1
@@ -135,6 +211,9 @@ def get_dice():
 
 
 def put_dice(screen, value1, value2):
+    """
+    Blits the dice with a given value to the screen.
+    """
     # dice_first = rotated_image = pygame.transform.rotate(dice_2, 30)
     dice_1 = pygame.image.load("../Images/Dice-1.png")
     dice_2 = pygame.image.load("../Images/Dice-2.png")
@@ -153,6 +232,10 @@ def put_dice(screen, value1, value2):
 
 
 def get_piece_position(row, height):
+    """
+    Gets the pixel position for a given piece.
+    #TODO: solve if there are more than 6 pieces on the same place
+    """
     # piece_x = 700
     # piece_y = 40
     x_positions = [700, 644, 588, 532, 476, 420, 320, 264, 208, 152, 96, 40, 40, 96, 152, 208, 264, 320, 420, 476, 532, 588, 644, 700]
@@ -165,12 +248,18 @@ def get_piece_position(row, height):
 
 
 def clear_file():
+    """
+    Clears the file with dice values
+    """
     f = open("../Dice.txt", "w")
     f.write("x x")
     f.close()
 
 
 def play_sound(value1, value2):
+    """
+    Plays certain sound effects for certain dice values. Mostly manele.
+    """
     if value1 < value2:
         value2, value1 = value1, value2
     sound_66 = pygame.mixer.Sound("../Sounds/Sunet-66.wav")
