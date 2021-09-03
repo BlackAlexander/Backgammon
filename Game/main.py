@@ -119,6 +119,15 @@ def default_table():
     to_return[23] = [w, w]
     to_return.append(0)  # Number of out black-pieces
     to_return.append(0)  # Number of out white-pieces
+    # game_sample(to_return)
+    return to_return
+
+
+def game_sample(table):
+    """
+    Sample game for debugging purposes
+    """
+    to_return = table
     perform_move(to_return, 'black', 16, 1)
     perform_move(to_return, 'white', 23, 6)
     discard_out_piece(to_return, 'black', 4)
@@ -128,7 +137,6 @@ def default_table():
     discard_out_piece(to_return, 'white', 4)
     discard_out_piece(to_return, 'white', 5)
     discard_out_piece(to_return, 'black', 4)
-    return to_return
 
 
 def check_moves(table, colour):
@@ -233,6 +241,7 @@ def discard_out_piece(table, colour, value):
             print('Move not available!')
             return
 
+
 def put_pieces(screen, table):
     """
     Blits the pieces to the screen
@@ -245,6 +254,12 @@ def put_pieces(screen, table):
                 screen.blit(white_piece, get_piece_position(i, j))
             if table[i][j] == 'b':
                 screen.blit(black_piece, get_piece_position(i, j))
+    for i in range(0, table[24]):
+        black_piece = pygame.transform.scale(black_piece, (50, 50))
+        screen.blit(black_piece, get_piece_position(-1, i))  # -1 for black pieces
+    for i in range(0, table[25]):
+        white_piece = pygame.transform.scale(white_piece, (50, 50))
+        screen.blit(white_piece, get_piece_position(-2, i))  # -2 for white pieces
 
 
 def get_dice():
@@ -296,17 +311,27 @@ def put_dice(screen, value1, value2):
 def get_piece_position(row, height):
     """
     Gets the pixel position for a given piece.
+    -1 for black out pieces, -2 for white out pieces
     #TODO: solve if there are more than 7 pieces on the same place
     """
     # piece_x = 700
     # piece_y = 40
-    x_positions = [700, 644, 588, 532, 476, 420, 320, 264, 208, 152, 96, 40, 40, 96, 152, 208, 264, 320, 420, 476, 532, 588, 644, 700]
-    piece_x = x_positions[row]
-    if row <= 11:
-        piece_y = 35 + height * 52
+    if row == -1:
+        piece_x = 374
+        piece_y = 28 + height * 43
+        return piece_x, piece_y
+    elif row == -2:
+        piece_x = 374
+        piece_y = 710 - height * 43
+        return piece_x, piece_y
     else:
-        piece_y = 703 - height * 52
-    return piece_x, piece_y
+        x_positions = [700, 644, 588, 532, 476, 420, 320, 264, 208, 152, 96, 40, 40, 96, 152, 208, 264, 320, 420, 476, 532, 588, 644, 700]
+        piece_x = x_positions[row]
+        if row <= 11:
+            piece_y = 35 + height * 52
+        else:
+            piece_y = 703 - height * 52
+        return piece_x, piece_y
 
 
 def clear_file():
