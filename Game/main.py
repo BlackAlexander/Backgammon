@@ -40,9 +40,11 @@ def play_game():
     playing = True
     black_pips = 167
     white_pips = 167
+    moved_dice = 0
+    dice_capacity = 2
     stage = ['roll', 'piece moved', 'all pieces', 'start roll', 'nothing']
     turn = ['white', 'black']
-    current_turn = 0
+    current_turn = 1
     current_stage = 3
     dices_thrown = 0
     dices1 = dices2 = 1
@@ -94,6 +96,10 @@ def play_game():
                         clear_file()
                         if dices1 < dices2:
                             dices2, dices1 = dices1, dices2
+                        if dices1 == dices2:
+                            dice_capacity = 4
+                        else:
+                            dice_capacity = 2
                         play_sound(dices1, dices2)
                         current_stage = 4
                 elif current_stage == 4 or current_stage == 1:
@@ -118,8 +124,18 @@ def play_game():
                             row = -1
                         elif row > 18:
                             row -= 1
-                        perform_move(table, turn[current_turn], row, dices1)
-                        current_stage = 1
+                        if moved_dice < dice_capacity:
+                            perform_move(table, turn[current_turn], row, dices1)
+                            moved_dice += 1
+                        if dice_capacity == 2 and moved_dice < 2:
+                            dices2, dices1 = dices1, dices2
+                            current_stage = 1
+                        if dice_capacity == 2 and moved_dice == 2:
+                            current_stage = 2
+                        if dice_capacity == 4 and moved_dice < 4:
+                            current_stage = 1
+                        if dice_capacity == 4 and moved_dice == 4:
+                            current_stage = 2
 
         # screen.blit(pygame.transform.rotate(screen, 180), (0, 0))
 
