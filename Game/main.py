@@ -148,10 +148,9 @@ def play_game():
                                     undo_stack.pop(-1)
                             else:
                                 # if perform_move(table, turn[current_turn], row, dices1):
-                                if discard_out_piece(table, current_turn, dices1):
+                                if discard_out_piece(table, turn[current_turn], dices1):
                                     moved_dice += 1
                                     if dice_capacity == 2 and moved_dice < 2:
-                                        dices2, dices1 = dices1, dices2
                                         current_stage = 1
                                     if dice_capacity == 2 and moved_dice == 2:
                                         current_stage = 2
@@ -283,15 +282,15 @@ def perform_move(table, colour, row, value):
         new_position = row + value
     else:
         new_position = row - value
-    if colour == 'w' and table[25] > 0:
+    if colour == 'w' and table[25] > 0 and row != -1:
         print('Move not available!')
         return False
-    if colour == 'b' and table[24] > 0:
+    if colour == 'b' and table[24] > 0 and row != -1:
         print('Move not available!')
         return False
     performable = True
     if row == -1:
-        new_position = value
+        new_position = value - 1
     else:
         if row != -1:
             if len(table[row]) == 0 or table[row][0] != colour:
@@ -458,7 +457,7 @@ def get_piece_position(row, height):
         x_positions = [700, 644, 588, 532, 476, 420, 320, 264, 208, 152, 96, 40, 40, 96, 152, 208, 264, 320, 420, 476, 532, 588, 644, 700]
         piece_x = x_positions[row]
         if row <= 11:
-            piece_y = 35 + height * 52
+            piece_y = 40 + height * 52
         else:
             piece_y = 703 - height * 52
         return piece_x, piece_y
