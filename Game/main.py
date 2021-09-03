@@ -175,19 +175,32 @@ def play_sound(value1, value2):
         value2, value1 = value1, value2
     sound_66 = pygame.mixer.Sound("../Sounds/Sunet-66.wav")
     sound_66_2 = pygame.mixer.Sound("../Sounds/Sunet-66-2.wav")
+    sound_66_3 = pygame.mixer.Sound("../Sounds/Sunet-66-3.wav")
+    sound_65 = pygame.mixer.Sound("../Sounds/Sunet-65.wav")
     sound_64 = pygame.mixer.Sound("../Sounds/Sunet-64.wav")
     sound_44 = pygame.mixer.Sound("../Sounds/Sunet-44.wav")
+    sound_42 = pygame.mixer.Sound("../Sounds/Sunet-42.wav")
+    sound_41 = pygame.mixer.Sound("../Sounds/Sunet-41.wav")
     sound_11 = pygame.mixer.Sound("../Sounds/Sunet-11.wav")
     sound_12 = pygame.mixer.Sound("../Sounds/Sunet-12.wav")
     if value1 == 6 and value2 == 6:
-        if random.randint(1, 2) == 1:
-            pygame.mixer.Sound.play(sound_66_2)
-        else:
+        rdm = random.randint(1, 3)
+        if rdm == 1:
             pygame.mixer.Sound.play(sound_66)
+        if rdm == 2:
+            pygame.mixer.Sound.play(sound_66_2)
+        if rdm == 3:
+            pygame.mixer.Sound.play(sound_66_3)
     if value1 == 6 and value2 == 4:
         pygame.mixer.Sound.play(sound_64)
+    if value1 == 6 and value2 == 5:
+        pygame.mixer.Sound.play(sound_65)
     if value1 == 4 and value2 == 4:
         pygame.mixer.Sound.play(sound_44)
+    if value1 == 4 and value2 == 2:
+        pygame.mixer.Sound.play(sound_42)
+    if value1 == 4 and value2 == 1:
+        pygame.mixer.Sound.play(sound_41)
     if value1 == 1 and value2 == 1:
         pygame.mixer.Sound.play(sound_11)
     if value1 == 2 and value2 == 1:
