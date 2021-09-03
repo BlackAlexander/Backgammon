@@ -21,6 +21,7 @@ def play_game():
 
     # sound
     sound_dice = pygame.mixer.Sound("../Sounds/Dice-Sound.wav")
+    sound_piece = pygame.mixer.Sound("../Sounds/Piece-Move.wav")
 
     # screen
     size = (800, 800)
@@ -44,10 +45,12 @@ def play_game():
     dice_capacity = 2
     stage = ['roll', 'piece moved', 'all pieces', 'start roll', 'nothing']
     turn = ['white', 'black']
-    current_turn = 1
+    current_turn = 0
     current_stage = 3
     dices_thrown = 0
     dices1 = dices2 = 1
+    undo_stack = []
+
     # text
     pygame.font.init()
     pipfont = pygame.font.SysFont('Times New Roman', 50)
@@ -58,8 +61,9 @@ def play_game():
         # click = pygame.mouse.get_pressed(3)
 
         # text
-        blacksurface = pipfont.render(str(black_pips), True, (0, 0, 0))
-        whitesurface = pipfont.render(str(white_pips), True, (0, 0, 0))
+        # blacksurface = pipfont.render(str(black_pips), True, (0, 0, 0))
+        blacksurface = pipfont.render(str(turn[current_turn]), True, (0, 0, 0))
+        whitesurface = pipfont.render(str(stage[current_stage]), True, (0, 0, 0))
 
         # blit
         screen.blit(background, (0, 0))
@@ -102,8 +106,8 @@ def play_game():
                             dice_capacity = 2
                         play_sound(dices1, dices2)
                         current_stage = 4
-                elif current_stage == 4 or current_stage == 1:
-                    # Move first piece
+                if current_stage == 4 or current_stage == 1:
+                    # Move pieces
                     click_on_piece = False
                     if 40 <= pos_x <= 760 and 40 <= pos_y <= 356:
                         click_on_piece = True
@@ -125,21 +129,61 @@ def play_game():
                         elif row > 18:
                             row -= 1
                         if moved_dice < dice_capacity:
-                            perform_move(table, turn[current_turn], row, dices1)
-                            moved_dice += 1
-                        if dice_capacity == 2 and moved_dice < 2:
-                            dices2, dices1 = dices1, dices2
+                            undo_stack.append(full_copy(table))
+                            if perform_move(table, turn[current_turn], row, dices1):
+                                moved_dice += 1
+                                if dice_capacity == 2 and moved_dice < 2:
+                                    dices2, dices1 = dices1, dices2
+                                    current_stage = 1
+                                if dice_capacity == 2 and moved_dice == 2:
+                                    current_stage = 2
+                                if dice_capacity == 4 and moved_dice < 4:
+                                    current_stage = 1
+                                if dice_capacity == 4 and moved_dice == 4:
+                                    current_stage = 2
+                            else:
+                                undo_stack.pop(-1)
+                if current_stage == 1:
+                    # Undo Button
+                    if 368 <= pos_y <= 438 and 541 <= pos_x <= 640:
+                        if len(undo_stack) > 0:
+                            table = undo_stack.pop(-1)
+                            pygame.mixer.Sound.play(sound_piece)
+                            moved_dice -= 1
+                            if len(undo_stack) == 0:
+                                current_stage = 4
+                if current_stage == 2:
+                    # Undo Shifted Left
+                    if 368 <= pos_y <= 438 and 470 <= pos_x <= 570:
+                        if len(undo_stack) > 0:
+                            table = undo_stack.pop(-1)
+                            pygame.mixer.Sound.play(sound_piece)
+                            moved_dice -= 1
                             current_stage = 1
-                        if dice_capacity == 2 and moved_dice == 2:
-                            current_stage = 2
-                        if dice_capacity == 4 and moved_dice < 4:
-                            current_stage = 1
-                        if dice_capacity == 4 and moved_dice == 4:
-                            current_stage = 2
+                    if 368 <= pos_y <= 438 and 610 <= pos_x <= 710:
+                        dices_thrown = False
+                        if current_turn == 0:
+                            current_turn = 1
+                        elif current_turn == 1:
+                            current_turn = 0
+                        current_stage = 0
+                        undo_stack = []
+                        moved_dice = 0
 
         # screen.blit(pygame.transform.rotate(screen, 180), (0, 0))
 
         pygame.display.update()
+
+
+def full_copy(table):
+    to_ret = []
+    for i in range(0, 24):
+        to_ret.append([])
+        for j in table[i]:
+            to_ret[i].append(j)
+    to_ret.append(table[24])
+    to_ret.append(table[25])
+    return to_ret
 
 
 def default_table():
@@ -208,11 +252,11 @@ def check_moves(table, colour):
 def perform_move(table, colour, row, value):
     """
     Performs a valid move
-    :return:
+    :return: True if move was performed, False otherwise
     """
     if row < -1 or row > 23:
         print('Move not available!')
-        return
+        return False
     if colour == 'black':
         colour = 'b'
     elif colour == 'white':
@@ -228,17 +272,17 @@ def perform_move(table, colour, row, value):
         if row != -1:
             if len(table[row]) == 0 or table[row][0] != colour:
                 print('Move not available!')
-                return
+                return False
         else:
             if colour == 'b' and table[24] == 0:
                 print('Move not available!')
-                return
+                return False
             if colour == 'w' and table[25] == 0:
                 print('Move not available!')
-                return
+                return False
         if new_position > 23 or new_position < 0:
             print('Move not available!')
-            return
+            return False
     if check_moves(table, colour)[new_position] is False:
         performable = False
     if performable:
@@ -263,8 +307,10 @@ def perform_move(table, colour, row, value):
                     pygame.mixer.Sound.play(sound_oo)
             else:
                 table[new_position].append(colour)
+        return True
     else:
         print('Move not available!')
+        return False
 
 
 def discard_out_piece(table, colour, value):
