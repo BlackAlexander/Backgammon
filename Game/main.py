@@ -36,6 +36,8 @@ def play_game():
 
     # game data
     table = default_table()
+    # Table has w or b for pieces from 0 to 23,
+    # and the number of out pieces on 24(b) and 25(w)
     playing = True
     black_pips = 167
     white_pips = 167
@@ -115,8 +117,17 @@ def default_table():
     to_return[16] = [b, b, b]
     to_return[18] = [b, b, b, b, b]
     to_return[23] = [w, w]
-    perform_move(to_return, 'white', 23, 11)
-    perform_move(to_return, 'white', 23, 11)
+    to_return.append(0)  # Number of out black-pieces
+    to_return.append(0)  # Number of out white-pieces
+    perform_move(to_return, 'black', 16, 1)
+    perform_move(to_return, 'white', 23, 6)
+    discard_out_piece(to_return, 'black', 4)
+    perform_move(to_return, 'white', 23, 4)
+    perform_move(to_return, 'black', 16, 1)
+    perform_move(to_return, 'black', 18, 1)
+    discard_out_piece(to_return, 'white', 4)
+    discard_out_piece(to_return, 'white', 5)
+    discard_out_piece(to_return, 'black', 4)
     return to_return
 
 
@@ -147,6 +158,9 @@ def perform_move(table, colour, row, value):
     Performs a valid move
     :return:
     """
+    if row < -1 or row > 23:
+        print('Move not available!')
+        return
     if colour == 'black':
         colour = 'b'
     elif colour == 'white':
@@ -156,26 +170,68 @@ def perform_move(table, colour, row, value):
     else:
         new_position = row - value
     performable = True
-    if len(table[row]) == 0 or table[row][0] != colour:
-        print('Move not available!')
-        return
-    if new_position > 23 or new_position < 0:
-        print('Move not available!')
-        return
+    if row == -1:
+        new_position = value
+    else:
+        if row != -1:
+            if len(table[row]) == 0 or table[row][0] != colour:
+                print('Move not available!')
+                return
+        if new_position > 23 or new_position < 0:
+            print('Move not available!')
+            return
     if check_moves(table, colour)[new_position] is False:
         performable = False
     if performable:
-        table[row].pop(-1)
+        if row != -1:
+            table[row].pop(-1)
         if len(table[new_position]) == 0:
             table[new_position] = [colour]
         else:
             if table[new_position][0] != colour:
                 table[new_position] = [colour]
+                if colour == 'w':
+                    # If colour is white, it means that the other piece is black
+                    print("Out Black Piece!")
+                    table[24] += 1
+                if colour == 'b':
+                    table[25] += 1
+                    print("Out White Piece!")
             else:
                 table[new_position].append(colour)
     else:
         print('Move not available!')
 
+
+def discard_out_piece(table, colour, value):
+    """
+    Puts a piece back on the table after it was taken out
+    """
+    if colour == 'black':
+        colour = 'b'
+    elif colour == 'white':
+        colour = 'w'
+
+    if colour == 'b':
+        if table[24] < 1:
+            print('Move not available!')
+            return
+        if check_moves(table, colour)[value - 1] is True:
+            table[24] -= 1
+            perform_move(table, colour, -1, value - 1)
+        else:
+            print('Move not available!')
+            return
+    if colour == 'w':
+        if table[25] < 1:
+            print('Move not available!')
+            return
+        if check_moves(table, colour)[24 - value] is True:
+            table[25] -= 1
+            perform_move(table, colour, -1, 24 - value)
+        else:
+            print('Move not available!')
+            return
 
 def put_pieces(screen, table):
     """
@@ -240,7 +296,7 @@ def put_dice(screen, value1, value2):
 def get_piece_position(row, height):
     """
     Gets the pixel position for a given piece.
-    #TODO: solve if there are more than 6 pieces on the same place
+    #TODO: solve if there are more than 7 pieces on the same place
     """
     # piece_x = 700
     # piece_y = 40
@@ -250,7 +306,7 @@ def get_piece_position(row, height):
         piece_y = 35 + height * 52
     else:
         piece_y = 703 - height * 52
-    return (piece_x, piece_y)
+    return piece_x, piece_y
 
 
 def clear_file():
