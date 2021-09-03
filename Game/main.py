@@ -20,7 +20,6 @@ def play_game():
     """
 
     # sound
-    sound_piece = pygame.mixer.Sound("../Sounds/Piece-Move.wav")
     sound_dice = pygame.mixer.Sound("../Sounds/Dice-Sound.wav")
 
     # screen
@@ -119,7 +118,7 @@ def default_table():
     to_return[23] = [w, w]
     to_return.append(0)  # Number of out black-pieces
     to_return.append(0)  # Number of out white-pieces
-    # game_sample(to_return)
+    game_sample(to_return)
     return to_return
 
 
@@ -191,6 +190,9 @@ def perform_move(table, colour, row, value):
     if check_moves(table, colour)[new_position] is False:
         performable = False
     if performable:
+        sound_piece = pygame.mixer.Sound("../Sounds/Piece-Move.wav")
+        sound_oo = pygame.mixer.Sound("../Sounds/Sunet-Oo.wav")
+        pygame.mixer.Sound.play(sound_piece)
         if row != -1:
             table[row].pop(-1)
         if len(table[new_position]) == 0:
@@ -200,11 +202,13 @@ def perform_move(table, colour, row, value):
                 table[new_position] = [colour]
                 if colour == 'w':
                     # If colour is white, it means that the other piece is black
-                    print("Out Black Piece!")
+                    # print("Out Black Piece!")
+                    pygame.mixer.Sound.play(sound_oo)
                     table[24] += 1
                 if colour == 'b':
                     table[25] += 1
-                    print("Out White Piece!")
+                    # print("Out White Piece!")
+                    pygame.mixer.Sound.play(sound_oo)
             else:
                 table[new_position].append(colour)
     else:
