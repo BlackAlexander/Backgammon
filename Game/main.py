@@ -42,6 +42,7 @@ def play_game():
     white_pips = 167
     stage = ['roll', 'piece moved', 'all pieces', 'start roll', 'nothing']
     turn = ['white', 'black']
+    current_turn = 0
     current_stage = 3
     dices_thrown = 0
     dices1 = dices2 = 1
@@ -52,7 +53,7 @@ def play_game():
     while playing:
         # pygame.mouse.set_cursor(*pygame.cursors.diamond)
         mouse = pygame.mouse.get_pos()
-        click = pygame.mouse.get_pressed(3)
+        # click = pygame.mouse.get_pressed(3)
 
         # text
         blacksurface = pipfont.render(str(black_pips), True, (0, 0, 0))
@@ -85,13 +86,40 @@ def play_game():
                 pos_y = mouse[1]
                 # Roll
                 if current_stage == 0 or current_stage == 3:
+                    # Roll Button
                     if 368 <= pos_y <= 438 and 541 <= pos_x <= 640:
                         [dices1, dices2] = get_dice()
                         dices_thrown = True
                         pygame.mixer.Sound.play(sound_dice)
                         clear_file()
+                        if dices1 < dices2:
+                            dices2, dices1 = dices1, dices2
                         play_sound(dices1, dices2)
                         current_stage = 4
+                elif current_stage == 4 or current_stage == 1:
+                    # Move first piece
+                    click_on_piece = False
+                    if 40 <= pos_x <= 760 and 40 <= pos_y <= 356:
+                        click_on_piece = True
+                    if 40 <= pos_x <= 760 and 450 <= pos_y <= 760:
+                        click_on_piece = True
+                    if click_on_piece:
+                        row = pos_x - 40
+                        row = row // 56
+                        if 450 <= pos_y <= 760:
+                            row += 12
+                        if 40 <= pos_y <= 356:
+                            row = 11 - row
+                        if row == 5:
+                            row = -1
+                        elif row < 5:
+                            row += 1
+                        if row == 18:
+                            row = -1
+                        elif row > 18:
+                            row -= 1
+                        perform_move(table, turn[current_turn], row, dices1)
+                        current_stage = 1
 
         # screen.blit(pygame.transform.rotate(screen, 180), (0, 0))
 
@@ -118,7 +146,7 @@ def default_table():
     to_return[23] = [w, w]
     to_return.append(0)  # Number of out black-pieces
     to_return.append(0)  # Number of out white-pieces
-    game_sample(to_return)
+    # game_sample(to_return)
     return to_return
 
 
@@ -133,6 +161,7 @@ def game_sample(table):
     perform_move(to_return, 'white', 23, 4)
     perform_move(to_return, 'black', 16, 1)
     perform_move(to_return, 'black', 18, 1)
+    # return
     discard_out_piece(to_return, 'white', 4)
     discard_out_piece(to_return, 'white', 5)
     discard_out_piece(to_return, 'black', 4)
@@ -182,6 +211,13 @@ def perform_move(table, colour, row, value):
     else:
         if row != -1:
             if len(table[row]) == 0 or table[row][0] != colour:
+                print('Move not available!')
+                return
+        else:
+            if colour == 'b' and table[24] == 0:
+                print('Move not available!')
+                return
+            if colour == 'w' and table[25] == 0:
                 print('Move not available!')
                 return
         if new_position > 23 or new_position < 0:
@@ -308,6 +344,8 @@ def put_dice(screen, value1, value2):
     second_dice = dices[value2]
     screen.blit(dice_s, (153 + value1, 368 + value2))
     screen.blit(first_dice, (148 + value1, 363 + value2))
+    second_dice = pygame.transform.scale(second_dice, (45, 45))
+    dice_s = pygame.transform.scale(dice_s, (45, 45))
     screen.blit(dice_s, (232 + value2, 398 + value1))
     screen.blit(second_dice, (227 + value2, 393 + value1))
 
