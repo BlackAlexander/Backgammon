@@ -54,6 +54,7 @@ def play_game():
     # text
     pygame.font.init()
     pipfont = pygame.font.SysFont('Times New Roman', 50)
+    turnfont = pygame.font.SysFont('Times New Roman', 15)
 
     while playing:
         # pygame.mouse.set_cursor(*pygame.cursors.diamond)
@@ -61,14 +62,15 @@ def play_game():
         # click = pygame.mouse.get_pressed(3)
 
         # text
-        # blacksurface = pipfont.render(str(black_pips), True, (0, 0, 0))
-        blacksurface = pipfont.render(str(turn[current_turn]), True, (0, 0, 0))
-        whitesurface = pipfont.render(str(stage[current_stage]), True, (0, 0, 0))
+        blacksurface = pipfont.render(str(black_pips), True, (0, 0, 0))
+        whitesurface = pipfont.render(str(white_pips), True, (0, 0, 0))
+        who_turns = turnfont.render(turn[current_turn], True, (0, 0, 0))
 
         # blit
         screen.blit(background, (0, 0))
         screen.blit(blacksurface, (362, -7))
         screen.blit(whitesurface, (362, 752))
+        screen.blit(who_turns, (40, 21))
         put_pieces(screen, table)
         if dices_thrown:
             put_dice(screen, dices1, dices2)
@@ -130,19 +132,35 @@ def play_game():
                             row -= 1
                         if moved_dice < dice_capacity:
                             undo_stack.append(full_copy(table))
-                            if perform_move(table, turn[current_turn], row, dices1):
-                                moved_dice += 1
-                                if dice_capacity == 2 and moved_dice < 2:
-                                    dices2, dices1 = dices1, dices2
-                                    current_stage = 1
-                                if dice_capacity == 2 and moved_dice == 2:
-                                    current_stage = 2
-                                if dice_capacity == 4 and moved_dice < 4:
-                                    current_stage = 1
-                                if dice_capacity == 4 and moved_dice == 4:
-                                    current_stage = 2
+                            if row != -1:
+                                if perform_move(table, turn[current_turn], row, dices1):
+                                    moved_dice += 1
+                                    if dice_capacity == 2 and moved_dice < 2:
+                                        dices2, dices1 = dices1, dices2
+                                        current_stage = 1
+                                    if dice_capacity == 2 and moved_dice == 2:
+                                        current_stage = 2
+                                    if dice_capacity == 4 and moved_dice < 4:
+                                        current_stage = 1
+                                    if dice_capacity == 4 and moved_dice == 4:
+                                        current_stage = 2
+                                else:
+                                    undo_stack.pop(-1)
                             else:
-                                undo_stack.pop(-1)
+                                # if perform_move(table, turn[current_turn], row, dices1):
+                                if discard_out_piece(table, current_turn, dices1):
+                                    moved_dice += 1
+                                    if dice_capacity == 2 and moved_dice < 2:
+                                        dices2, dices1 = dices1, dices2
+                                        current_stage = 1
+                                    if dice_capacity == 2 and moved_dice == 2:
+                                        current_stage = 2
+                                    if dice_capacity == 4 and moved_dice < 4:
+                                        current_stage = 1
+                                    if dice_capacity == 4 and moved_dice == 4:
+                                        current_stage = 2
+                                else:
+                                    undo_stack.pop(-1)
                 if current_stage == 1:
                     # Undo Button
                     if 368 <= pos_y <= 438 and 541 <= pos_x <= 640:
@@ -265,6 +283,12 @@ def perform_move(table, colour, row, value):
         new_position = row + value
     else:
         new_position = row - value
+    if colour == 'w' and table[25] > 0:
+        print('Move not available!')
+        return False
+    if colour == 'b' and table[24] > 0:
+        print('Move not available!')
+        return False
     performable = True
     if row == -1:
         new_position = value
@@ -325,23 +349,25 @@ def discard_out_piece(table, colour, value):
     if colour == 'b':
         if table[24] < 1:
             print('Move not available!')
-            return
+            return False
         if check_moves(table, colour)[value - 1] is True:
-            table[24] -= 1
-            perform_move(table, colour, -1, value - 1)
+            if perform_move(table, colour, -1, value - 1):
+                table[24] -= 1
+                return True
         else:
             print('Move not available!')
-            return
+            return False
     if colour == 'w':
         if table[25] < 1:
             print('Move not available!')
-            return
+            return False
         if check_moves(table, colour)[24 - value] is True:
-            table[25] -= 1
-            perform_move(table, colour, -1, 24 - value)
+            if perform_move(table, colour, -1, 24 - value):
+                table[25] -= 1
+                return True
         else:
             print('Move not available!')
-            return
+            return False
 
 
 def put_pieces(screen, table):
