@@ -58,6 +58,7 @@ def play_game():
 
     undo_stack = []
     dice_undo_stack = []
+    position_undo_stack = []
 
     # text
     pygame.font.init()
@@ -106,6 +107,7 @@ def play_game():
                     if 368 <= pos_y <= 438 and 541 <= pos_x <= 640:
                         [dices1, dices2] = get_dice()
                         dice_undo_stack = []
+                        position_undo_stack = []
                         if dices1 < dices2:
                             dices1, dices2 = dices2, dices1
                         dice_position = 0
@@ -128,7 +130,7 @@ def play_game():
                             dice_values[2] = [0, False, False]
                             dice_values[3] = [0, False, False]
                         dices_thrown = True
-                        print(dice_values)
+                        # print(dice_values)
                         pygame.mixer.Sound.play(sound_dice)
                         clear_file()
                         play_sound(dices1, dices2)
@@ -164,6 +166,7 @@ def play_game():
                         if can_turn(dice_values):
                             undo_stack.append(full_copy(table))
                             dice_undo_stack.append(full_dice_copy(dice_values))
+                            position_undo_stack.append(dice_position)
                             if row != -1:
                                 usable = True
                                 if dice_values[dice_position][1] is False or dice_values[dice_position][2] is False:
@@ -178,6 +181,7 @@ def play_game():
                                 else:
                                     undo_stack.pop(-1)
                                     dice_undo_stack.pop(-1)
+                                    position_undo_stack.pop(-1)
                             else:
                                 # if perform_move(table, turn[current_turn], row, dices1):
                                 usable = True
@@ -193,6 +197,7 @@ def play_game():
                                 else:
                                     undo_stack.pop(-1)
                                     dice_undo_stack.pop(-1)
+                                    position_undo_stack.pop(-1)
                 if current_stage == 1:
                     # Undo Button
                     if 368 <= pos_y <= 438 and 541 <= pos_x <= 640:
@@ -200,6 +205,7 @@ def play_game():
                             table = undo_stack.pop(-1)
                             pygame.mixer.Sound.play(sound_piece)
                             dice_values = dice_undo_stack.pop(-1)
+                            dice_position = position_undo_stack.pop(-1)
                             if len(undo_stack) == 0:
                                 current_stage = 4
                 if current_stage == 2:
@@ -209,6 +215,7 @@ def play_game():
                             table = undo_stack.pop(-1)
                             pygame.mixer.Sound.play(sound_piece)
                             dice_values = dice_undo_stack.pop(-1)
+                            dice_position = position_undo_stack.pop(-1)
                             current_stage = 1
                     if 368 <= pos_y <= 438 and 610 <= pos_x <= 710:
                         dices_thrown = False
@@ -219,6 +226,7 @@ def play_game():
                         current_stage = 0
                         undo_stack = []
                         dice_undo_stack = []
+                        position_undo_stack = []
 
         # screen.blit(pygame.transform.rotate(screen, 180), (0, 0))
 
@@ -230,7 +238,7 @@ def can_turn(dice_table):
     Looks at all the dice and returns True if there is any available dice
     """
     to_return = False
-    print(dice_table)
+    # print(dice_table)
     for i in range(0, 4):
         if dice_table[i][0] != 0:
             if dice_table[i][2]:
@@ -240,6 +248,7 @@ def can_turn(dice_table):
 
 
 def get_next_position(dice_table, position):
+    print(dice_table, position)
     dice_values = dice_table
     dice_position = position
     dice_position += 1
@@ -247,6 +256,15 @@ def get_next_position(dice_table, position):
         dice_position = 0
     if dice_values[3][0] != 0 and dice_position == 4:
         dice_position = 0
+    while dice_values[dice_position][1] is False or dice_values[dice_position][2] is False:
+        dice_position += 1
+        if dice_values[3][0] == 0 and dice_position == 2:
+            dice_position = 0
+        if dice_values[3][0] != 0 and dice_position == 4:
+            dice_position = 0
+        if dice_position == position:
+            return position
+
     return dice_position
 
 
