@@ -124,7 +124,7 @@ def play_game():
             screen.blit(button_done, (611, 353))
 
         if can_speech is True and current_stage == 0:
-            create_speech_dice()
+            # create_speech_dice()
             can_speech = False
 
         for event in pygame.event.get():
@@ -139,7 +139,9 @@ def play_game():
                 # Roll
                 if current_stage == 0 or current_stage == 3:
                     # Roll Button
-                    if 368 <= pos_y <= 438 and 541 <= pos_x <= 640:
+                    if 368 <= pos_y <= 438 and 541 <= pos_x <= 700:
+                        if current_stage == 0 and pos_x > 640:
+                            create_speech_dice()
                         [dices1, dices2] = get_dice()
                         if current_stage == 3:
                             while dices1 == dices2:
