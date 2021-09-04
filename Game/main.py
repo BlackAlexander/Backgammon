@@ -108,6 +108,7 @@ def play_game():
                         dice_undo_stack = []
                         if dices1 < dices2:
                             dices1, dices2 = dices2, dices1
+                        dice_position = 0
                         dice_values[0][0] = dices1
                         dice_values[0][1] = True
                         dice_values[0][2] = check_available(table, dices1, turn[current_turn])
@@ -132,6 +133,8 @@ def play_game():
                         clear_file()
                         play_sound(dices1, dices2)
                         current_stage = 4
+                        if can_turn(dice_values) is False:
+                            current_stage = 2
 
                 if current_stage == 4 or current_stage == 1:
                     # Move pieces
@@ -162,7 +165,10 @@ def play_game():
                             undo_stack.append(full_copy(table))
                             dice_undo_stack.append(full_dice_copy(dice_values))
                             if row != -1:
-                                if perform_move(table, turn[current_turn], row, dice_values[dice_position][0]):
+                                usable = True
+                                if dice_values[dice_position][1] is False or dice_values[dice_position][2] is False:
+                                    usable = False
+                                if usable and perform_move(table, turn[current_turn], row, dice_values[dice_position][0]):
                                     dice_values[dice_position][1] = False
                                     dice_position = get_next_position(dice_values, dice_position)
                                     if can_turn(dice_values):
@@ -174,7 +180,10 @@ def play_game():
                                     dice_undo_stack.pop(-1)
                             else:
                                 # if perform_move(table, turn[current_turn], row, dices1):
-                                if discard_out_piece(table, turn[current_turn], dice_values[dice_position][0]):
+                                usable = True
+                                if dice_values[dice_position][1] is False or dice_values[dice_position][2] is False:
+                                    usable = False
+                                if usable and discard_out_piece(table, turn[current_turn], dice_values[dice_position][0]):
                                     dice_values[dice_position][1] = False
                                     dice_position = get_next_position(dice_values, dice_position)
                                     if can_turn(dice_values):
@@ -527,7 +536,7 @@ def put_dice(screen, dice_table, current_dice):
     dice_6 = pygame.image.load("../Images/Dice-6.png")
     dice_s = pygame.image.load("../Images/Dice-Shadow.png")
     dices = [dice_s, dice_1, dice_2, dice_3, dice_4, dice_5, dice_6]
-    dice_positions = [[148, 363], [227, 393], [168, 383], [247, 413]]
+    dice_positions = [[148, 363], [227, 393], [78, 383], [297, 373]]
     # first_dice = dices[value1]
     # second_dice = dices[value2]
     # screen.blit(dice_s, (153 + value1, 368 + value2))
@@ -536,11 +545,18 @@ def put_dice(screen, dice_table, current_dice):
     # # dice_s = pygame.transform.scale(dice_s, (45, 45))
     # screen.blit(dice_s, (232 + value2, 398 + value1))
     # screen.blit(second_dice, (227 + value2, 393 + value1))
-
+    all_used = False
+    for i in range(0, 4):
+        if dice_table[i][1] == True and dice_table[i][2] == True:
+            all_used = True
+    if all_used is False:
+        current_dice = -1
     for i in range(3, -1, -1):
         if dice_table[i][0] != 0:
             dice_pic = dices[dice_table[i][0]]
             dice_s = pygame.image.load("../Images/Dice-Shadow.png")
+            dice_pic.set_alpha(255)
+            dice_s.set_alpha(255)
             if i == current_dice:
                 dice_pic = pygame.transform.scale(dice_pic, (70, 70))
                 dice_s = pygame.transform.scale(dice_s, (70, 70))
