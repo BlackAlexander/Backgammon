@@ -20,16 +20,16 @@ def create_speech_dice():
         pass
     print(values)
     first_num = second_num = 0
-    try:
-        first_num = int(values[0])
-        second_num = int(values[1])
-    except (Exception, ):
-        pass
-    if 1 <= first_num <= 6 and 1 <= second_num <= 6:
+    for i in range(0, len(values) - 1):
+        if '1' <= values[i] <= '6' and '1' <= values[i] <= '6':
+            first_num = int(values[i])
+            second_num = int(values[i + 1])
+    if first_num != 0 and second_num != 0:
         result = str(first_num) + " " + str(second_num)
         f = open("../Dice.txt", "w")
         f.write(result)
         f.close()
+    print(first_num, second_num)
 
 
 def initialize():
@@ -122,7 +122,7 @@ def play_game():
         if stage[current_stage] == 'all pieces':
             screen.blit(button_undo, (471, 353))
             screen.blit(button_done, (611, 353))
-            
+
         if can_speech is True and current_stage == 0:
             create_speech_dice()
             can_speech = False
