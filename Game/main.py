@@ -77,8 +77,8 @@ def play_game():
 
         # blit
         screen.blit(background, (0, 0))
-        screen.blit(blacksurface, (362, -7))
-        screen.blit(whitesurface, (362, 752))
+        screen.blit(whitesurface, (362, -7))
+        screen.blit(blacksurface, (362, 752))
         if current_stage != 3:
             screen.blit(who_turns, (40, 21))
         put_pieces(screen, table)
@@ -148,7 +148,6 @@ def play_game():
 
                 if current_stage == 4 or current_stage == 1:
                     # Move pieces
-                    [white_pips, black_pips] = compute_pips(table)
                     click_on_piece = False
                     if 40 <= pos_x <= 760 and 40 <= pos_y <= 356:
                         click_on_piece = True
@@ -219,9 +218,9 @@ def play_game():
                                     undo_stack.pop(-1)
                                     dice_undo_stack.pop(-1)
                                     position_undo_stack.pop(-1)
+                    [white_pips, black_pips] = compute_pips(table)
                 if current_stage == 1:
                     # Undo Button
-                    [white_pips, black_pips] = compute_pips(table)
                     if 368 <= pos_y <= 438 and 541 <= pos_x <= 640:
                         if len(undo_stack) > 0:
                             table = undo_stack.pop(-1)
@@ -233,9 +232,9 @@ def play_game():
                                     dice_values[0][2] = check_available(table, dice_values[0][1], turn[current_turn])
                             if len(undo_stack) == 0:
                                 current_stage = 4
+                        [white_pips, black_pips] = compute_pips(table)
                 if current_stage == 2:
                     # Undo Shifted Left
-                    [white_pips, black_pips] = compute_pips(table)
                     if 368 <= pos_y <= 438 and 470 <= pos_x <= 570:
                         if len(undo_stack) > 0:
                             table = undo_stack.pop(-1)
@@ -256,6 +255,7 @@ def play_game():
                         undo_stack = []
                         dice_undo_stack = []
                         position_undo_stack = []
+                    [white_pips, black_pips] = compute_pips(table)
 
         # screen.blit(pygame.transform.rotate(screen, 180), (0, 0))
 
