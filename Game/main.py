@@ -47,7 +47,6 @@ def play_game():
     Long-ass function to play the whole game.
     :return:
     """
-
     # sound
     sound_dice = pygame.mixer.Sound("../Sounds/Dice-Sound.wav")
     sound_piece = pygame.mixer.Sound("../Sounds/Piece-Move.wav")
@@ -89,6 +88,8 @@ def play_game():
     dice_undo_stack = []
     position_undo_stack = []
 
+    can_speech = False
+
     # text
     pygame.font.init()
     pipfont = pygame.font.SysFont('Times New Roman', 50)
@@ -121,6 +122,10 @@ def play_game():
         if stage[current_stage] == 'all pieces':
             screen.blit(button_undo, (471, 353))
             screen.blit(button_done, (611, 353))
+            
+        if can_speech is True and current_stage == 0:
+            create_speech_dice()
+            can_speech = False
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -284,6 +289,7 @@ def play_game():
                         undo_stack = []
                         dice_undo_stack = []
                         position_undo_stack = []
+                        can_speech = True
                     [white_pips, black_pips] = compute_pips(table)
 
         # screen.blit(pygame.transform.rotate(screen, 180), (0, 0))
