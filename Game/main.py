@@ -106,6 +106,8 @@ def play_game():
                     if 368 <= pos_y <= 438 and 541 <= pos_x <= 640:
                         [dices1, dices2] = get_dice()
                         dice_undo_stack = []
+                        if dices1 < dices2:
+                            dices1, dices2 = dices2, dices1
                         dice_values[0][0] = dices1
                         dice_values[0][1] = True
                         dice_values[0][2] = check_available(table, dices1, turn[current_turn])
@@ -116,14 +118,16 @@ def play_game():
                             dice_values[2] = [0, False, False]
                             dice_values[3] = [0, False, False]
                             dice_values[2][0] = dice_values[3][0] = dices1
+
                             dice_values[2][1] = True
-                            dice_values[3][2] = check_available(table, dices1, turn[current_turn])
+                            dice_values[2][2] = check_available(table, dices1, turn[current_turn])
                             dice_values[3][1] = True
                             dice_values[3][2] = check_available(table, dices1, turn[current_turn])
                         else:
                             dice_values[2] = [0, False, False]
                             dice_values[3] = [0, False, False]
                         dices_thrown = True
+                        print(dice_values)
                         pygame.mixer.Sound.play(sound_dice)
                         clear_file()
                         play_sound(dices1, dices2)
@@ -179,6 +183,7 @@ def play_game():
                                         current_stage = 2
                                 else:
                                     undo_stack.pop(-1)
+                                    dice_undo_stack.pop(-1)
                 if current_stage == 1:
                     # Undo Button
                     if 368 <= pos_y <= 438 and 541 <= pos_x <= 640:
@@ -204,6 +209,7 @@ def play_game():
                             current_turn = 0
                         current_stage = 0
                         undo_stack = []
+                        dice_undo_stack = []
 
         # screen.blit(pygame.transform.rotate(screen, 180), (0, 0))
 
@@ -531,7 +537,7 @@ def put_dice(screen, dice_table, current_dice):
     # screen.blit(dice_s, (232 + value2, 398 + value1))
     # screen.blit(second_dice, (227 + value2, 393 + value1))
 
-    for i in range(0, 4):
+    for i in range(3, -1, -1):
         if dice_table[i][0] != 0:
             dice_pic = dices[dice_table[i][0]]
             dice_s = pygame.image.load("../Images/Dice-Shadow.png")
