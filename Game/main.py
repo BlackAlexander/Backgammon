@@ -148,6 +148,7 @@ def play_game():
 
                 if current_stage == 4 or current_stage == 1:
                     # Move pieces
+                    [white_pips, black_pips] = compute_pips(table)
                     click_on_piece = False
                     if 40 <= pos_x <= 760 and 40 <= pos_y <= 356:
                         click_on_piece = True
@@ -220,6 +221,7 @@ def play_game():
                                     position_undo_stack.pop(-1)
                 if current_stage == 1:
                     # Undo Button
+                    [white_pips, black_pips] = compute_pips(table)
                     if 368 <= pos_y <= 438 and 541 <= pos_x <= 640:
                         if len(undo_stack) > 0:
                             table = undo_stack.pop(-1)
@@ -233,6 +235,7 @@ def play_game():
                                 current_stage = 4
                 if current_stage == 2:
                     # Undo Shifted Left
+                    [white_pips, black_pips] = compute_pips(table)
                     if 368 <= pos_y <= 438 and 470 <= pos_x <= 570:
                         if len(undo_stack) > 0:
                             table = undo_stack.pop(-1)
@@ -339,6 +342,20 @@ def default_table():
     to_return.append(0)  # Number of out white-pieces
     # game_sample(to_return)
     return to_return
+
+
+def compute_pips(table):
+    white_pips = 0
+    black_pips = 0
+    for i in range(0, 24):
+        for j in table[i]:
+            if j == 'w':
+                white_pips += (i + 1)
+            if j == 'b':
+                black_pips += (24 - i)
+    white_pips += table[25] * 25
+    black_pips += table[24] * 25
+    return [white_pips, black_pips]
 
 
 def game_sample(table):
