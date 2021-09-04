@@ -21,7 +21,7 @@ def create_speech_dice():
     print(values)
     first_num = second_num = 0
     for i in range(0, len(values) - 1):
-        if '1' <= values[i] <= '6' and '1' <= values[i] <= '6':
+        if '1' <= values[i] <= '6' and '1' <= values[i + 1] <= '6':
             first_num = int(values[i])
             second_num = int(values[i + 1])
     if first_num != 0 and second_num != 0:
@@ -667,7 +667,6 @@ def get_piece_position(row, height):
     """
     Gets the pixel position for a given piece.
     -1 for black out pieces, -2 for white out pieces
-    #TODO: solve if there are more than 7 pieces on the same place
     """
     # piece_x = 700
     # piece_y = 40
