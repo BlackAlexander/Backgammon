@@ -79,7 +79,8 @@ def play_game():
         screen.blit(background, (0, 0))
         screen.blit(blacksurface, (362, -7))
         screen.blit(whitesurface, (362, 752))
-        screen.blit(who_turns, (40, 21))
+        if current_stage != 3:
+            screen.blit(who_turns, (40, 21))
         put_pieces(screen, table)
         if dices_thrown:
             put_dice(screen, dice_values, dice_position)
@@ -106,10 +107,15 @@ def play_game():
                     # Roll Button
                     if 368 <= pos_y <= 438 and 541 <= pos_x <= 640:
                         [dices1, dices2] = get_dice()
+                        if current_stage == 3:
+                            while dices1 == dices2:
+                                [dices1, dices2] = get_dice()
                         dice_undo_stack = []
                         position_undo_stack = []
                         if dices1 < dices2:
                             dices1, dices2 = dices2, dices1
+                            if current_stage == 3:
+                                current_turn = 1
                         dice_values[0][0] = dices1
                         dice_values[0][1] = True
                         dice_values[0][2] = check_available(table, dices1, turn[current_turn])
@@ -130,7 +136,7 @@ def play_game():
                             dice_values[3] = [0, False, False]
                         dices_thrown = True
                         dice_position = 0
-                        if dice_values[dice_position][2] is False:
+                        if dice_values[dice_position][2] is False or dice_values[dice_position][1] is False:
                             dice_position = get_next_position(dice_values, dice_position)
                         # print(dice_values)
                         pygame.mixer.Sound.play(sound_dice)
@@ -179,6 +185,9 @@ def play_game():
                                     for i in range(0, 4):
                                         if dice_values[i][0] != 0:
                                             dice_values[0][2] = check_available(table, dice_values[0][1], turn[current_turn])
+                                    if dice_values[dice_position][2] is False or dice_values[dice_position][1] is False:
+                                        dice_position = get_next_position(dice_values, dice_position)
+                                        position_undo_stack[-1] = dice_position
                                     if can_turn(dice_values):
                                         current_stage = 1
                                     else:
@@ -198,6 +207,9 @@ def play_game():
                                     for i in range(0, 4):
                                         if dice_values[i][0] != 0:
                                             dice_values[0][2] = check_available(table, dice_values[0][1], turn[current_turn])
+                                    if dice_values[dice_position][2] is False or dice_values[dice_position][1] is False:
+                                        dice_position = get_next_position(dice_values, dice_position)
+                                        position_undo_stack[-1] = dice_position
                                     if can_turn(dice_values):
                                         current_stage = 1
                                     else:
@@ -262,7 +274,7 @@ def can_turn(dice_table):
 
 
 def get_next_position(dice_table, position):
-    print(dice_table, position)
+    # print(dice_table, position)
     dice_values = dice_table
     dice_position = position
     dice_position += 1
