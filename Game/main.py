@@ -1,6 +1,35 @@
 import pygame
 import random
 import os
+import speech_recognition as sr
+
+
+def create_speech_dice():
+    """
+    Uses voice recognition to write two numbers in the file dice.txt
+    """
+    recognizer = sr.Recognizer()
+    microphone = sr.Microphone()
+    values = ""
+    with microphone as source:
+        recognizer.adjust_for_ambient_noise(source)
+        audio = recognizer.listen(source)
+    try:
+        values = recognizer.recognize_google(audio, language="ro-Ro")
+    except (Exception, ):
+        pass
+    print(values)
+    first_num = second_num = 0
+    try:
+        first_num = int(values[0])
+        second_num = int(values[1])
+    except (Exception, ):
+        pass
+    if 1 <= first_num <= 6 and 1 <= second_num <= 6:
+        result = str(first_num) + " " + str(second_num)
+        f = open("../Dice.txt", "w")
+        f.write(result)
+        f.close()
 
 
 def initialize():
