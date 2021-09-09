@@ -314,6 +314,10 @@ def can_turn(dice_table):
 
 
 def get_next_position(dice_table, position):
+    """
+    Iterates through the dice that were cast
+    :return: new position (from 0 to 4)
+    """
     # print(dice_table, position)
     dice_values = dice_table
     dice_position = position
@@ -349,6 +353,9 @@ def full_copy(table):
 
 
 def full_dice_copy(table):
+    """
+    Deepcopy of the dice values
+    """
     to_ret = [[0, False, False], [0, False, False], [0, False, False], [0, False, False]]
     for i in range(0, 4):
         to_ret[i][0] = table[i][0]
@@ -370,7 +377,7 @@ def default_table():
     to_return[0] = [b, b]
     to_return[5] = [w, w, w, w, w]
     to_return[7] = [w, w, w]
-    to_return[11] = [b, b, b, b, b]
+    to_return[11] = [b, b, b, b, b, b, b, b]
     to_return[12] = [w, w, w, w, w]
     to_return[16] = [b, b, b]
     to_return[18] = [b, b, b, b, b]
@@ -382,6 +389,10 @@ def default_table():
 
 
 def compute_pips(table):
+    """
+    Computes the number of remaining moves each player has to make
+    :return: a table containing the values for white and black
+    """
     white_pips = 0
     black_pips = 0
     for i in range(0, 24):
